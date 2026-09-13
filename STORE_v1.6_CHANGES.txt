@@ -1,0 +1,26 @@
+OneTime Labs Store v1.6.0
+StreamSafe Support Documentation + Contact Form
+
+CHANGED
+- Support page now links each StreamSafe documentation item to its specific OTLES document.
+- Installation Guide -> SSAFE-001.
+- Activation Help -> SSAFE-002.
+- Using StreamSafe -> SSAFE-003.
+- Troubleshooting -> SSAFE-004.
+- Contact OneTime Labs no longer opens OTLES or a mailto link.
+- Contact OneTime Labs now scrolls to a real support form on the Store Support page.
+
+ADDED
+- StreamSafe support contact form with name, email, issue type, version, subject, and message fields.
+- /api/support-contact server endpoint.
+- Support submissions are delivered to inquiry@onetimelabs.net.
+- Reply-To is set to the customer's submitted email address.
+- Honeypot field and basic server-side validation added.
+- Resend email delivery configuration added to .env.example.
+
+VERCEL ENVIRONMENT VARIABLES REQUIRED
+RESEND_API_KEY=re_...
+SUPPORT_FROM_EMAIL=OneTime Labs Support <support@onetimelabs.net>
+
+SUPPORT_FROM_EMAIL must use a sender/domain that is verified with the email provider.
+The destination address inquiry@onetimelabs.net is hardcoded in the server endpoint.

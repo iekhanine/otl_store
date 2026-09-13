@@ -1,106 +1,86 @@
-import {
-  Copy,
-  Download,
-  FileText,
-  LoaderCircle,
-} from "lucide-react";
-import {
-  useEffect,
-  useState,
-} from "react";
-import {
-  getOrder,
-  type OrderResult,
-} from "../services/storeApi";
+import { Copy, Download, FileText, LoaderCircle, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { downloadSoftware, getMySoftware, type SoftwareEntitlement } from "../services/storeApi";
 import { streamSafe } from "../data/products";
 
 export default function AccountPage() {
-  const [order, setOrder] = useState<OrderResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const [software, setSoftware] = useState<SoftwareEntitlement[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const sessionId = window.localStorage.getItem(
-      "otl_store_last_checkout_session",
-    );
-
-    if (!sessionId) {
-      setLoading(false);
-      return;
-    }
-
-    getOrder(sessionId)
-      .then(result => setOrder(result.ready ? result : null))
-      .catch(() => setOrder(null))
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    getMySoftware()
+      .then(setSoftware)
+      .catch(loadError => setError(loadError instanceof Error ? loadError.message : "Unable to load software."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user]);
 
-  async function copyKey() {
-    if (order?.licenseKey) {
-      await navigator.clipboard.writeText(order.licenseKey);
+  async function copyKey(key: string) {
+    await navigator.clipboard.writeText(key);
+  }
+
+  async function download(item: SoftwareEntitlement) {
+    try {
+      setError(null);
+      await downloadSoftware(item.downloadUrl);
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : "Unable to download StreamSafe.");
     }
+  }
+
+  if (authLoading) {
+    return <main className="store-shell account-page"><div className="prototype-note wide-note"><LoaderCircle size={18} className="spin" /> Loading account...</div></main>;
+  }
+
+  if (!user) {
+    return (
+      <main className="store-shell account-page">
+        <div className="section-heading account-heading"><div><span className="eyebrow dark">MY SOFTWARE</span><h1>My Software</h1><p>Sign in to access your purchases, licenses, and private downloads.</p></div></div>
+        <div className="prototype-note wide-note account-signin-note">
+          <LogIn size={18} />
+          <span>Your software library is attached to your OneTime Labs account.</span>
+          <NavLink className="button primary" to="/login?return=/account">Sign in</NavLink>
+        </div>
+      </main>
+    );
   }
 
   return (
     <main className="store-shell account-page">
       <div className="section-heading account-heading">
-        <div>
-          <span className="eyebrow dark">MY SOFTWARE</span>
-          <h1>My Software</h1>
-          <p>Your latest purchase on this browser.</p>
-        </div>
+        <div><span className="eyebrow dark">MY SOFTWARE</span><h1>My Software</h1><p>Purchases and downloads for {user.email}.</p></div>
       </div>
 
       {loading ? (
-        <div className="prototype-note wide-note">
-          <LoaderCircle size={18} className="spin" /> Loading purchase...
-        </div>
-      ) : !order ? (
-        <div className="prototype-note wide-note">
-          No purchase is saved in this browser yet.
-        </div>
-      ) : (
-        <article className="library-card">
+        <div className="prototype-note wide-note"><LoaderCircle size={18} className="spin" /> Loading software...</div>
+      ) : error ? (
+        <div className="checkout-error">{error}</div>
+      ) : software.length === 0 ? (
+        <div className="prototype-note wide-note">No software purchases are attached to this account yet.</div>
+      ) : software.map(item => (
+        <article className="library-card" key={item.orderId}>
           <div className="library-product">
             <img src={streamSafe.icon} alt="" />
-            <div>
-              <h2>StreamSafe</h2>
-              <span>Perpetual License</span>
-            </div>
-            <span className="status-pill">Active</span>
+            <div><h2>{item.productName}</h2><span>Lifetime License</span></div>
+            <span className="status-pill">{item.status}</span>
           </div>
-
           <div className="library-details">
-            <div>
-              <span>License key</span>
-              <div className="library-license">
-                <code>{order.licenseKey}</code>
-                <button onClick={copyKey}>
-                  <Copy size={15} />
-                </button>
-              </div>
-            </div>
-            <div>
-              <span>Version</span>
-              <strong>v{streamSafe.version}</strong>
-            </div>
-            <div>
-              <span>Platform</span>
-              <strong>{streamSafe.platform}</strong>
-            </div>
+            <div><span>License key</span><div className="library-license"><code>{item.licenseKey}</code><button onClick={() => void copyKey(item.licenseKey)}><Copy size={15} /></button></div></div>
+            <div><span>Version</span><strong>v{item.version}</strong></div>
+            <div><span>Platform</span><strong>Twitch</strong></div>
           </div>
-
           <div className="library-actions">
-            <a className="button primary" href={order.downloadUrl}>
-              <Download size={16} />
-              Download Latest
-            </a>
-            <a className="button secondary" href="/support">
-              <FileText size={16} />
-              Installation Guide
-            </a>
+            <button className="button primary" type="button" onClick={() => void download(item)}><Download size={16} /> Download Latest</button>
+            <a className="button secondary" href="/support"><FileText size={16} /> Installation Guide</a>
           </div>
         </article>
-      )}
+      ))}
     </main>
   );
 }

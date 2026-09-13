@@ -7,6 +7,7 @@ import StoreFooter from "./components/StoreFooter";
 import StoreHeader from "./components/StoreHeader";
 import AccountPage from "./pages/AccountPage";
 import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import StreamSafePage from "./pages/StreamSafePage";
 import SupportPage from "./pages/SupportPage";
@@ -19,6 +20,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/streamsafe" element={<StreamSafePage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/support" element={<SupportPage />} />

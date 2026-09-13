@@ -1,0 +1,31 @@
+OneTime Labs Store v1.5.0
+StreamSafe product-page rewrite
+
+Changed:
+- Added src/components/StreamSafeGallery.tsx
+- Rewrote src/pages/StreamSafePage.tsx in plain language for Twitch streamers
+- Rewrote StreamSafe product copy in src/data/products.ts
+- Added StreamSafe carousel/explainer styles to src/styles.css
+- Added four annotated marketing images under public/images/streamsafe-gallery/
+
+Gallery behavior:
+- Previous/next arrows
+- Slide indicator (1/4, etc.)
+- Clickable dots
+- Short caption beneath each image
+- Responsive layout for mobile
+
+Product explanation now focuses on:
+- A short safety buffer between OBS and Twitch
+- DUMP as a panic/undo-style control before buffered content reaches viewers
+- Real examples: private information, wrong scene/content, and moments the streamer wants to stop before broadcast
+- Simple three-step OBS -> StreamSafe -> Twitch explanation
+
+Validation in this workspace:
+- TypeScript/TSX syntax parse: PASS
+- CSS brace validation: PASS
+- All four gallery images present
+
+Full npm/Vite build was not completed in this execution host because npm dependency installation timed out and the extracted source package does not include node_modules. Run locally:
+  npm install
+  npm run build

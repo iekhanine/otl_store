@@ -7,17 +7,21 @@ import {
 import {
   NavLink,
   useSearchParams,
+  Navigate,
 } from "react-router-dom";
 import {
   useEffect,
   useState,
 } from "react";
 import {
+  downloadSoftware,
   getOrder,
   type OrderResult,
 } from "../services/storeApi";
+import { useAuth } from "../context/AuthContext";
 
 export default function PurchaseSuccessPage() {
+  const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id") ?? "";
 
@@ -25,6 +29,7 @@ export default function PurchaseSuccessPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     if (!sessionId) {
       setError("Missing Stripe Checkout Session ID.");
       return;
@@ -70,12 +75,31 @@ export default function PurchaseSuccessPage() {
     return () => {
       cancelled = true;
     };
-  }, [sessionId]);
+  }, [sessionId, user]);
 
   async function copyKey() {
     if (order?.licenseKey) {
       await navigator.clipboard.writeText(order.licenseKey);
     }
+  }
+
+  async function download() {
+    if (!order?.downloadUrl) return;
+    try {
+      setError(null);
+      await downloadSoftware(order.downloadUrl);
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : "Unable to download StreamSafe.");
+    }
+  }
+
+
+  if (authLoading) {
+    return <main className="store-shell narrow-page"><div className="success-card"><LoaderCircle size={48} className="success-icon spin" /><h1>Loading your account...</h1></div></main>;
+  }
+
+  if (!user) {
+    return <Navigate to={`/login?return=${encodeURIComponent(`/purchase-success?session_id=${sessionId}`)}`} replace />;
   }
 
   if (error) {
@@ -123,13 +147,14 @@ export default function PurchaseSuccessPage() {
           </button>
         </div>
 
-        <a
-          href={order.downloadUrl}
+        <button
+          type="button"
+          onClick={() => void download()}
           className="button primary full-width"
         >
           <Download size={17} />
           Download StreamSafe
-        </a>
+        </button>
 
         <div className="success-actions">
           <NavLink to="/account">My Software</NavLink>

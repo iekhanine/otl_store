@@ -51,6 +51,7 @@ export async function fulfillCheckoutSession(
       p_product_slug: productSlug,
       p_amount_total: session.amount_total ?? 0,
       p_currency: session.currency ?? "usd",
+      p_auth_user_id: session.metadata?.otl_user_id ?? null,
     },
   );
 

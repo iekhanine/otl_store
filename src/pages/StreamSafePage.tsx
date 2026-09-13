@@ -1,20 +1,33 @@
 import {
   Check,
   Download,
+  EyeOff,
   Infinity as InfinityIcon,
+  MessageSquareWarning,
   Monitor,
+  Radio,
   ShieldCheck,
+  VolumeX,
 } from "lucide-react";
 import { useState } from "react";
-import StreamSafePreview from "../components/StreamSafePreview";
+import { useNavigate } from "react-router-dom";
+import StreamSafeGallery from "../components/StreamSafeGallery";
+import { useAuth } from "../context/AuthContext";
 import { streamSafe } from "../data/products";
 import { startStreamSafeCheckout } from "../services/storeApi";
 
 export default function StreamSafePage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutStarting, setCheckoutStarting] = useState(false);
 
   async function buyStreamSafe() {
+    if (!user) {
+      navigate("/login?return=/streamsafe");
+      return;
+    }
+
     try {
       setCheckoutError(null);
       setCheckoutStarting(true);
@@ -30,27 +43,56 @@ export default function StreamSafePage() {
   }
 
   return (
-    <main className="store-shell product-page">
+    <main className="store-shell product-page streamsafe-product-page">
       <div className="breadcrumbs">
         Store <span>/</span> StreamSafe
       </div>
 
-      <section className="product-hero-grid">
+      {/* ======================================================
+          HEADER 001
+          Product introduction
+          ====================================================== */}
+      <section className="product-hero-grid streamsafe-hero-grid">
         <div className="product-detail-copy">
           <div className="product-title-with-icon">
             <img src={streamSafe.icon} alt="" />
             <div>
-              <span className="eyebrow dark">WINDOWS SOFTWARE</span>
+              <span className="eyebrow dark">FOR TWITCH STREAMERS</span>
               <h1>StreamSafe</h1>
               <p>{streamSafe.tagline}</p>
             </div>
           </div>
 
-          <p className="product-lead">
-            {streamSafe.description}
+          <h2 className="streamsafe-simple-heading">
+            Give yourself a few seconds to take something back.
+          </h2>
+
+          <p className="product-lead streamsafe-lead">
+            When you are live, there is normally no undo button. If your desktop
+            shows something private, the wrong scene appears, a notification
+            pops up, or something happens that should not go to Twitch, your
+            viewers can see it immediately.
           </p>
 
-          <ul className="feature-list">
+          <p className="product-lead streamsafe-lead secondary">
+            StreamSafe puts a short safety buffer between OBS and Twitch. Your
+            stream keeps moving through StreamSafe first. If something goes
+            wrong, hit <strong>DUMP</strong> and the selected part of that buffer
+            is removed before Twitch receives it.
+          </p>
+
+          <div className="streamsafe-plain-callout">
+            <ShieldCheck size={22} />
+            <div>
+              <strong>Think of it like broadcast insurance.</strong>
+              <span>
+                You hope you never need the button. When you do, you want it
+                sitting right there.
+              </span>
+            </div>
+          </div>
+
+          <ul className="feature-list streamsafe-feature-list">
             {streamSafe.features.map(feature => (
               <li key={feature}>
                 <Check size={17} />
@@ -62,7 +104,7 @@ export default function StreamSafePage() {
           <div className="purchase-box">
             <div>
               <strong>{streamSafe.price}</strong>
-              <span>One-time purchase. No subscription.</span>
+              <span>Pay once. No monthly subscription.</span>
             </div>
 
             <button
@@ -72,7 +114,7 @@ export default function StreamSafePage() {
             >
               {checkoutStarting
                 ? "Opening Checkout..."
-                : "Buy StreamSafe"}
+                : user ? "Buy StreamSafe" : "Sign in to Buy"}
             </button>
           </div>
 
@@ -93,33 +135,124 @@ export default function StreamSafePage() {
           </div>
         </div>
 
-        <div className="product-preview-column">
-          <StreamSafePreview />
+        <div className="product-preview-column streamsafe-preview-column">
+          <StreamSafeGallery />
 
           <div className="requirements-card">
-            <h3>System requirements</h3>
+            <h3>What you need</h3>
             <div className="requirement-row">
               <Monitor size={18} />
               <div>
-                <strong>Windows 10 or Windows 11</strong>
-                <span>64-bit desktop application</span>
+                <strong>A Windows streaming PC</strong>
+                <span>Windows 10 or Windows 11, 64-bit.</span>
+              </div>
+            </div>
+            <div className="requirement-row">
+              <Radio size={18} />
+              <div>
+                <strong>OBS + Twitch</strong>
+                <span>StreamSafe sits between OBS and your Twitch broadcast.</span>
               </div>
             </div>
             <div className="requirement-row">
               <Download size={18} />
               <div>
-                <strong>Installer download</strong>
-                <span>Delivered as a Windows installer / EXE.</span>
-              </div>
-            </div>
-            <div className="requirement-row">
-              <ShieldCheck size={18} />
-              <div>
-                <strong>Lifetime license</strong>
-                <span>Activate StreamSafe after purchase.</span>
+                <strong>One installer</strong>
+                <span>Download the EXE, install it, activate it, and stream.</span>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ======================================================
+          HEADER 002
+          Real-world streamer examples
+          ====================================================== */}
+      <section className="streamsafe-explainer-section">
+        <div className="streamsafe-section-heading">
+          <span className="eyebrow dark">WHY WOULD I NEED THIS?</span>
+          <h2>Because live streams have no edit button.</h2>
+          <p>
+            StreamSafe is for the little moments that become very big problems
+            once hundreds of people have already seen them.
+          </p>
+        </div>
+
+        <div className="streamsafe-scenario-grid">
+          <article>
+            <EyeOff size={23} />
+            <strong>You show something private</strong>
+            <p>
+              A DM, email, address, password screen, browser tab, or private
+              window appears on stream by mistake.
+            </p>
+          </article>
+
+          <article>
+            <MessageSquareWarning size={23} />
+            <strong>The wrong thing appears on screen</strong>
+            <p>
+              A bad scene switch, unexpected notification, guest content, or
+              something you simply do not want broadcast pops up.
+            </p>
+          </article>
+
+          <article>
+            <VolumeX size={23} />
+            <strong>You need to take back a few seconds</strong>
+            <p>
+              Instead of hoping nobody clipped it, hit DUMP while the moment is
+              still inside StreamSafe's safety buffer.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      {/* ======================================================
+          HEADER 003
+          Simple three-step explanation
+          ====================================================== */}
+      <section className="streamsafe-how-section">
+        <div className="streamsafe-section-heading">
+          <span className="eyebrow dark">HOW IT WORKS</span>
+          <h2>OBS → StreamSafe → Twitch.</h2>
+          <p>No broadcast-engineering degree required.</p>
+        </div>
+
+        <div className="streamsafe-step-grid">
+          <article>
+            <span>1</span>
+            <div>
+              <strong>Pick your safety window</strong>
+              <p>
+                Choose how many seconds you want StreamSafe to hold before your
+                broadcast reaches Twitch.
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span>2</span>
+            <div>
+              <strong>Stream normally from OBS</strong>
+              <p>
+                You keep using OBS. StreamSafe handles the protected path to
+                Twitch in the background.
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span>3</span>
+            <div>
+              <strong>Hit DUMP if something goes wrong</strong>
+              <p>
+                StreamSafe removes the selected buffered moment instead of
+                sending that part to Twitch.
+              </p>
+            </div>
+          </article>
         </div>
       </section>
     </main>

@@ -1,12 +1,17 @@
 import {
   Download,
+  LogIn,
+  LogOut,
   Menu,
   ShoppingBag,
   UserRound,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function StoreHeader() {
+  const { user, signOut } = useAuth();
+
   return (
     <header className="store-header">
       <div className="store-shell header-inner">
@@ -25,9 +30,22 @@ export default function StoreHeader() {
         </nav>
 
         <div className="header-actions">
-          <NavLink to="/account" className="header-icon-link" aria-label="My software">
-            <UserRound size={18} />
-          </NavLink>
+          {user ? (
+            <>
+              <NavLink to="/account" className="header-account-link">
+                <UserRound size={17} />
+                <span>{user.email}</span>
+              </NavLink>
+              <button className="header-icon-link" aria-label="Sign out" onClick={() => void signOut()}>
+                <LogOut size={18} />
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className="header-account-link">
+              <LogIn size={17} />
+              <span>Sign in</span>
+            </NavLink>
+          )}
           <NavLink to="/account" className="header-icon-link" aria-label="Downloads">
             <Download size={18} />
           </NavLink>

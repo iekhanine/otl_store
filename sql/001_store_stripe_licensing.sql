@@ -19,7 +19,7 @@ INSERT INTO public.products (
 VALUES (
     'StreamSafe',
     'streamsafe',
-    '0.12.1',
+    '0.12.2',
     'SSAF'
 )
 ON CONFLICT (slug)
