@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/streamsafe", "destination": "/index.html" },
+    { "source": "/purchase-success", "destination": "/index.html" },
+    { "source": "/account", "destination": "/index.html" },
+    { "source": "/support", "destination": "/index.html" }
+  ]
+}
