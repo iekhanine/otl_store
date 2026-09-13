@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.api.json --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck:api": "tsc -p tsconfig.api.json --noEmit"
+    "typecheck:api": "tsc -p tsconfig.api.json --noEmit",
+    "dev:frontend": "vite",
+    "dev:full": "vercel dev"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -17,21 +17,30 @@ export default function HomePage() {
         <div className="store-shell hero-grid">
           <div className="hero-copy">
             <div className="eyebrow">
-              ONE-TIME PURCHASE. LIFETIME VALUE.
+              ONE-TIME PURCHASES. LIFETIME VALUE.
             </div>
 
             <h1>
-              Own Your Software. <br />
+              Software that
+              <br />
+              works for you.
             </h1>
 
             <p>
-            buy it. install it. keep it. it's yours. 
+              Windows software from OneTime Labs.
+              Buy it once. Install it. Keep it.
             </p>
 
             <div className="hero-actions">
               <a href="#software" className="button primary large">
                 Browse Software
               </a>
+              <NavLink
+                to="/streamsafe"
+                className="button secondary large"
+              >
+                View StreamSafe
+              </NavLink>
             </div>
 
             <div className="hero-benefits">

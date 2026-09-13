@@ -5,20 +5,27 @@ import {
   Monitor,
   ShieldCheck,
 } from "lucide-react";
+import { useState } from "react";
 import StreamSafePreview from "../components/StreamSafePreview";
 import { streamSafe } from "../data/products";
 import { startStreamSafeCheckout } from "../services/storeApi";
 
 export default function StreamSafePage() {
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutStarting, setCheckoutStarting] = useState(false);
+
   async function buyStreamSafe() {
     try {
+      setCheckoutError(null);
+      setCheckoutStarting(true);
       await startStreamSafeCheckout();
     } catch (error) {
-      window.alert(
+      setCheckoutError(
         error instanceof Error
           ? error.message
           : "Unable to start checkout.",
       );
+      setCheckoutStarting(false);
     }
   }
 
@@ -61,17 +68,26 @@ export default function StreamSafePage() {
             <button
               className="button primary purchase-button"
               onClick={buyStreamSafe}
+              disabled={checkoutStarting}
             >
-              Buy StreamSafe
+              {checkoutStarting
+                ? "Opening Checkout..."
+                : "Buy StreamSafe"}
             </button>
           </div>
+
+          {checkoutError && (
+            <div className="checkout-error" role="alert">
+              {checkoutError}
+            </div>
+          )}
 
           <div className="license-note">
             <InfinityIcon size={18} />
             <div>
               <strong>Buy once. Keep it.</strong>
               <span>
-                Your StreamSafe license includes future StreamSafe updates for 1 year.
+                Your StreamSafe license includes future StreamSafe updates.
               </span>
             </div>
           </div>
@@ -100,7 +116,7 @@ export default function StreamSafePage() {
               <ShieldCheck size={18} />
               <div>
                 <strong>Lifetime license</strong>
-                <span>One purchase. One activation. Yours forever.</span>
+                <span>Activate StreamSafe after purchase.</span>
               </div>
             </div>
           </div>
