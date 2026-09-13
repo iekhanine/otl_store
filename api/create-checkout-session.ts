@@ -1,6 +1,6 @@
-import { requireEnv, storePublicUrl } from "./_lib/env";
-import { jsonResponse } from "./_lib/http";
-import { getStripe } from "./_lib/stripe";
+import { requireEnv, storePublicUrl } from "./_lib/env.js";
+import { jsonResponse } from "./_lib/http.js";
+import { getStripe } from "./_lib/stripe.js";
 
 export async function POST(request: Request) {
 

@@ -3,7 +3,7 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
-import { requireEnv } from "./env";
+import { requireEnv } from "./env.js";
 
 
 /* ==========================================================

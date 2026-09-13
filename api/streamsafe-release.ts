@@ -1,4 +1,4 @@
-import { jsonResponse } from "./_lib/http";
+import { jsonResponse } from "./_lib/http.js";
 
 export async function GET(request: Request) {
 

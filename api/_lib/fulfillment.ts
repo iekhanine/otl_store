@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { getSupabaseAdmin } from "./supabase";
+import { getSupabaseAdmin } from "./supabase.js";
 
 export type FulfilledOrder = {
   orderId: string;
