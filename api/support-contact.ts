@@ -1,5 +1,5 @@
-import { requireEnv } from "./_lib/env.js";
-import { jsonResponse, readJson } from "./_lib/http.js";
+import { requireEnv } from "../server/lib/env.js";
+import { jsonResponse, readJson } from "../server/lib/http.js";
 
 /* ==========================================================
    HEADER 001

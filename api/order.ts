@@ -1,7 +1,7 @@
-import { requireStoreUser, isAuthError } from "./_lib/auth.js";
-import { fulfillCheckoutSession } from "./_lib/fulfillment.js";
-import { jsonResponse } from "./_lib/http.js";
-import { getStripe } from "./_lib/stripe.js";
+import { requireStoreUser, isAuthError } from "../server/lib/auth.js";
+import { fulfillCheckoutSession } from "../server/lib/fulfillment.js";
+import { jsonResponse } from "../server/lib/http.js";
+import { getStripe } from "../server/lib/stripe.js";
 
 export async function GET(request: Request) {
   try {

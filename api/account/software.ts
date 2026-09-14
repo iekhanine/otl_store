@@ -1,6 +1,6 @@
-import { requireStoreUser, isAuthError } from "../_lib/auth.js";
-import { jsonResponse } from "../_lib/http.js";
-import { getSupabaseAdmin } from "../_lib/supabase.js";
+import { requireStoreUser, isAuthError } from "../../server/lib/auth.js";
+import { jsonResponse } from "../../server/lib/http.js";
+import { getSupabaseAdmin } from "../../server/lib/supabase.js";
 
 export async function GET(request: Request) {
   try {

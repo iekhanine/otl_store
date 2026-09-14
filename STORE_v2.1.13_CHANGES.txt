@@ -1,8 +1,0 @@
-OneTime Labs Store v2.1.13
-
-- Seller Center now hands new/non-seller applicants to Platform.
-- Approved Store sellers remain in /seller.
-- Platform URL defaults to https://platform.onetimelabs.net.
-- Support mail now mirrors the established OneTime Labs Resend sender:
-  OneTime Labs <inquiry@onetimelabs.net> -> inquiry@onetimelabs.net.
-- SUPPORT_FROM_EMAIL is optional; RESEND_API_KEY remains server-required.

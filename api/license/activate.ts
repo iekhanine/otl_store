@@ -1,5 +1,5 @@
-import { requireEnv } from "../_lib/env.js";
-import { jsonResponse } from "../_lib/http.js";
+import { requireEnv } from "../../server/lib/env.js";
+import { jsonResponse } from "../../server/lib/http.js";
 
 export async function POST(request: Request) {
 

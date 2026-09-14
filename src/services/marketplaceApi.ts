@@ -148,19 +148,19 @@ export function formatMoney(cents: number, currency = "usd") {
 }
 
 export async function getMarketplaceListings(limit = 48): Promise<MarketplaceListing[]> {
-  const response = await fetch(`/api/marketplace/products?limit=${limit}`, { cache: "no-store" });
+  const response = await fetch(`/api/marketplace?route=products&limit=${limit}`, { cache: "no-store" });
   const body = await apiJson<{ products: MarketplaceListing[] }>(response, "Unable to load hardware.");
   return body.products ?? [];
 }
 
 export async function getMarketplaceListing(slug: string): Promise<MarketplaceListing> {
-  const response = await fetch(`/api/marketplace/products?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
+  const response = await fetch(`/api/marketplace?route=products&slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
   const body = await apiJson<{ product: MarketplaceListing }>(response, "Unable to load product.");
   return body.product;
 }
 
 export async function getSellerProfile(): Promise<SellerProfile | null> {
-  const response = await fetch("/api/seller/profile", { cache: "no-store", headers: await authHeaders() });
+  const response = await fetch("/api/marketplace?route=seller-profile", { cache: "no-store", headers: await authHeaders() });
   const body = await apiJson<{ seller: SellerProfile | null }>(response, "Unable to load seller profile.");
   return body.seller ?? null;
 }
@@ -168,7 +168,7 @@ export async function getSellerProfile(): Promise<SellerProfile | null> {
 
 export async function getSellerApplication(): Promise<SellerApplication | null> {
   const response = await fetch(
-    "/api/seller/application",
+    "/api/marketplace?route=seller-application",
     {
       cache: "no-store",
       headers: await authHeaders(),
@@ -187,7 +187,7 @@ export async function submitSellerApplication(
   input: SellerApplicationInput,
 ): Promise<SellerApplication> {
   const response = await fetch(
-    "/api/seller/application",
+    "/api/marketplace?route=seller-application",
     {
       method: "POST",
       headers: {
@@ -207,7 +207,7 @@ export async function submitSellerApplication(
 }
 
 export async function createSellerProfile(displayName: string, slug: string): Promise<SellerProfile> {
-  const response = await fetch("/api/seller/profile", {
+  const response = await fetch("/api/marketplace?route=seller-profile", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify({ displayName, slug }),
@@ -217,13 +217,13 @@ export async function createSellerProfile(displayName: string, slug: string): Pr
 }
 
 export async function getSellerListings(): Promise<MarketplaceListing[]> {
-  const response = await fetch("/api/seller/listings", { cache: "no-store", headers: await authHeaders() });
+  const response = await fetch("/api/marketplace?route=seller-listings", { cache: "no-store", headers: await authHeaders() });
   const body = await apiJson<{ listings: MarketplaceListing[] }>(response, "Unable to load listings.");
   return body.listings ?? [];
 }
 
 export async function createListing(input: ListingInput): Promise<MarketplaceListing> {
-  const response = await fetch("/api/seller/listings", {
+  const response = await fetch("/api/marketplace?route=seller-listings", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(input),
@@ -233,7 +233,7 @@ export async function createListing(input: ListingInput): Promise<MarketplaceLis
 }
 
 export async function updateListing(id: string, input: Omit<Partial<ListingInput>, "status"> & { status?: ListingStatus }): Promise<MarketplaceListing> {
-  const response = await fetch(`/api/seller/listing?id=${encodeURIComponent(id)}`, {
+  const response = await fetch(`/api/marketplace?route=seller-listing&id=${encodeURIComponent(id)}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(input),
@@ -250,7 +250,7 @@ export async function recordCashSale(input: {
   buyerContact?: string;
   note?: string;
 }): Promise<string> {
-  const response = await fetch("/api/seller/cash-sale", {
+  const response = await fetch("/api/marketplace?route=seller-cash-sale", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify(input),
@@ -261,7 +261,7 @@ export async function recordCashSale(input: {
 
 export async function getSellerSales(archived = false): Promise<SellerSale[]> {
   const response = await fetch(
-    `/api/seller/sales${archived ? "?archived=1" : ""}`,
+    `/api/marketplace?route=seller-sales${archived ? "&archived=1" : ""}`,
     { cache: "no-store", headers: await authHeaders() },
   );
   const body = await apiJson<{ sales: SellerSale[] }>(response, "Unable to load sales.");
@@ -269,7 +269,7 @@ export async function getSellerSales(archived = false): Promise<SellerSale[]> {
 }
 
 export async function archiveSellerSale(saleId: string): Promise<void> {
-  const response = await fetch("/api/seller/sales", {
+  const response = await fetch("/api/marketplace?route=seller-sales", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -327,12 +327,12 @@ export type AdminMarketplaceData = {
 };
 
 export async function getMarketplaceAdmin(): Promise<AdminMarketplaceData> {
-  const response = await fetch("/api/admin/marketplace", { cache: "no-store", headers: await authHeaders() });
+  const response = await fetch("/api/marketplace?route=admin-marketplace", { cache: "no-store", headers: await authHeaders() });
   return apiJson<AdminMarketplaceData>(response, "Unable to load marketplace administration.");
 }
 
 export async function setSellerStatus(sellerId: string, status: SellerStatus): Promise<void> {
-  const response = await fetch("/api/admin/seller-status", {
+  const response = await fetch("/api/marketplace?route=admin-seller-status", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify({ sellerId, status }),
@@ -341,7 +341,7 @@ export async function setSellerStatus(sellerId: string, status: SellerStatus): P
 }
 
 export async function setListingStatus(listingId: string, status: ListingStatus): Promise<void> {
-  const response = await fetch("/api/admin/listing-status", {
+  const response = await fetch("/api/marketplace?route=admin-listing-status", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await authHeaders()) },
     body: JSON.stringify({ listingId, status }),

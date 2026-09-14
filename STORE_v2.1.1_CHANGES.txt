@@ -1,7 +1,0 @@
-OneTime Labs Store v2.1.1
-
-SELLER AUTH ROUTING FIX
-- /seller now waits only for Supabase authentication to resolve.
-- Logged-out visitors are immediately redirected to /login?return=/seller.
-- After sign-in, LoginPage returns the user to /seller.
-- Fixed the infinite "Loading seller dashboard..." state caused by the dashboard data loader remaining true when no authenticated user existed.
