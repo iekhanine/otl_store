@@ -1,8 +1,13 @@
 {
   "rewrites": [
+    { "source": "/hardware", "destination": "/index.html" },
+    { "source": "/hardware/:path*", "destination": "/index.html" },
     { "source": "/streamsafe", "destination": "/index.html" },
+    { "source": "/seller", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" },
     { "source": "/purchase-success", "destination": "/index.html" },
     { "source": "/account", "destination": "/index.html" },
-    { "source": "/support", "destination": "/index.html" }
+    { "source": "/support", "destination": "/index.html" },
+    { "source": "/login", "destination": "/index.html" }
   ]
 }

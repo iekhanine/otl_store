@@ -1,0 +1,11 @@
+OneTime Labs Store v2.1.9 - Login Panel Correction
+
+Replace these files:
+- src/pages/LoginPage.tsx
+- src/styles.css
+
+Fix:
+- Removes the v2.1.6 full-bleed / split-screen login redesign.
+- The visible white Sign In panel now uses the normal full .store-shell width.
+- The actual login form stays compact (460px) and centered inside the panel.
+- Preserves the newer Store navigation / Hardware hierarchy CSS from v2.1.7.

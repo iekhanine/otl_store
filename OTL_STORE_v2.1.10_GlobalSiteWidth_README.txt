@@ -1,0 +1,15 @@
+OneTime Labs Store v2.1.10 - Global Site Width Fix
+
+REPLACE:
+  src/styles.css
+
+WHAT THIS FIXES:
+- One global 1180px shell contract for header, department nav, page content, and footer.
+- Login uses the exact same outer width as Store, Software, Hardware, Support, Account, Seller, Admin, checkout, and success pages.
+- Support is no longer forced to 820px.
+- Checkout/success pages are no longer forced to 650px.
+- Stable vertical scrollbar geometry prevents the whole centered site/header/nav from shifting when navigating between short and long pages.
+- Final CSS invariant at the end of styles.css prevents route-specific page classes from narrowing the outer shell later.
+
+NO TSX FILES CHANGED.
+LoginPage.tsx was already using className="store-shell auth-page" correctly; the mismatch was global CSS/layout behavior.

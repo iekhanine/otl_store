@@ -6,7 +6,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import type { StoreProduct } from "../data/products";
+import {
+  softwareTypeLabels,
+  type StoreProduct,
+} from "../data/products";
 
 type Props = {
   product: StoreProduct;
@@ -59,7 +62,7 @@ export default function ProductCard({
       </div>
 
       <div className="product-card-features">
-        <span><Monitor size={15} /> Windows app</span>
+        <span><Monitor size={15} /> {softwareTypeLabels[product.softwareType]}</span>
         <span><ShieldCheck size={15} /> Lifetime license</span>
         <span><Download size={15} /> Direct download</span>
         <span><InfinityIcon size={15} /> Future updates</span>

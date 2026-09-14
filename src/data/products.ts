@@ -1,3 +1,9 @@
+export type SoftwareType =
+  | "windows"
+  | "web"
+  | "macos"
+  | "linux";
+
 export type StoreProduct = {
   slug: string;
   name: string;
@@ -6,12 +12,29 @@ export type StoreProduct = {
   price: string;
   version: string;
   platform: string;
+  softwareType: SoftwareType;
+  featured?: boolean;
   icon: string;
   features: string[];
 };
 
 /* ==========================================================
    HEADER 001
+   Software platform labels
+
+   Change softwareType on a product to move it between the
+   Windows / Web Apps / macOS / Linux catalog filters.
+   ========================================================== */
+
+export const softwareTypeLabels: Record<SoftwareType, string> = {
+  windows: "Windows App",
+  web: "Web App",
+  macos: "macOS App",
+  linux: "Linux App",
+};
+
+/* ==========================================================
+   HEADER 002
    StreamSafe storefront copy
    ========================================================== */
 
@@ -24,6 +47,8 @@ export const streamSafe: StoreProduct = {
   price: import.meta.env.VITE_STREAMSAFE_DISPLAY_PRICE?.trim() || "$49.00",
   version: "0.12.2",
   platform: "Windows 10 / 11",
+  softwareType: "windows",
+  featured: true,
   icon: "/images/streamsafe.png",
   features: [
     "Choose a 5, 10, or 15 second safety window",

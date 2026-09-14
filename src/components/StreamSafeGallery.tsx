@@ -307,7 +307,7 @@ export default function StreamSafeGallery() {
             <div className="streamsafe-lightbox-toolbar">
               <div>
                 <strong>{activeSlide.title}</strong>
-                <span>StreamSafe Screenshot · {activeIndex + 1} of {slides.length}</span>
+                <span>Real StreamSafe screenshot · {activeIndex + 1} of {slides.length}</span>
               </div>
 
               <button

@@ -1,0 +1,4 @@
+OneTime Labs Store v2.1.2
+
+- Removed the top utility strip containing "OneTime Labs Store" and "Hardware • Software • Local pickup".
+- Main storefront header now begins directly with the OneTime Labs brand, search, account, seller, and cart controls.

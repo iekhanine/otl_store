@@ -1,0 +1,7 @@
+OneTime Labs Store v2.1.6
+
+- Changed Login / Sign In from a centered card to a full-width Store page surface.
+- Visible auth surface now spans 100% of the page, matching the Store's full-width presentation.
+- Auth content aligns to the same 1180px .store-shell used by Store, Hardware, Software, Seller Center, and Support.
+- Kept the credential form readable in a right-side panel instead of stretching inputs across the whole page.
+- Responsive layout collapses to one column on smaller screens.

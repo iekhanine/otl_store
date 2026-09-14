@@ -1,0 +1,11 @@
+OneTime Labs Store v2.0.1
+
+Hardware marketplace empty-state polish
+
+- Added a dedicated public landing state when no hardware is listed.
+- Empty catalog no longer shows search/filter controls that have nothing to search.
+- Added Sell hardware and Browse software actions.
+- Added seller inventory, shipping, and local-pickup explainer cards.
+- Added a retry state for genuine marketplace load failures.
+- Public hardware API now gracefully returns an empty catalog when the marketplace schema has not been provisioned yet, while seller/admin APIs continue to surface setup errors normally.
+- Package version bumped to 2.0.1.

@@ -17,6 +17,7 @@ type SupportContactPayload = {
 };
 
 const supportRecipient = "inquiry@onetimelabs.net";
+const defaultSupportSender = "OneTime Labs <inquiry@onetimelabs.net>";
 
 function textValue(value: unknown, maxLength: number): string {
   if (typeof value !== "string") return "";
@@ -74,7 +75,12 @@ export async function POST(request: Request) {
     }
 
     const resendApiKey = requireEnv("RESEND_API_KEY");
-    const from = requireEnv("SUPPORT_FROM_EMAIL");
+
+    // Reuse the sender pattern already established for the
+    // OneTime Labs / ivankay.org contact flow. SUPPORT_FROM_EMAIL
+    // remains an optional override, but it is no longer required.
+    const from =
+      process.env.SUPPORT_FROM_EMAIL?.trim() || defaultSupportSender;
 
     const safeName = escapeHtml(name);
     const safeEmail = escapeHtml(email);
@@ -154,10 +160,8 @@ export async function POST(request: Request) {
     return jsonResponse(
       {
         error:
-          error instanceof Error &&
-          (error.message.includes("RESEND_API_KEY") ||
-            error.message.includes("SUPPORT_FROM_EMAIL"))
-            ? "Support email is not configured yet."
+          error instanceof Error && error.message.includes("RESEND_API_KEY")
+            ? "Support email delivery is unavailable in this environment."
             : "Unable to send your message right now. Please try again.",
       },
       500,
