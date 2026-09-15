@@ -9,6 +9,7 @@ export type OrderResult = {
   licenseKey?: string;
   status?: string;
   downloadUrl?: string;
+  environment?: "live" | "test";
   error?: string;
 };
 
@@ -21,6 +22,7 @@ export type SoftwareEntitlement = {
   version: string;
   purchasedAt: string;
   downloadUrl: string;
+  environment?: "live" | "test";
 };
 
 type StoreProductApi = {

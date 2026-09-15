@@ -4,7 +4,7 @@ import { issueDownloadToken, redeemDownloadToken } from "../server/lib/downloadT
 import { storePublicUrl } from "../server/lib/env.js";
 import { fulfillCheckoutSession } from "../server/lib/fulfillment.js";
 import { jsonResponse } from "../server/lib/http.js";
-import { getStripe } from "../server/lib/stripe.js";
+import { getStripe, getStripeMode } from "../server/lib/stripe.js";
 import { getStoreSoftwareProductById } from "../server/lib/storeProducts.js";
 import { getSupabaseAdmin } from "../server/lib/supabase.js";
 
@@ -56,6 +56,7 @@ export async function GET(request: Request) {
       auth_user_id: string | null;
       customer_email: string;
       product_id: string;
+      stripe_mode: string;
     } | null = null;
 
     if (sessionId) {
@@ -81,7 +82,8 @@ export async function GET(request: Request) {
       await fulfillCheckoutSession(session);
       const result = await supabase
         .from("store_orders")
-        .select("id, auth_user_id, customer_email, product_id")
+        .select("id, auth_user_id, customer_email, product_id, stripe_mode")
+        .eq("stripe_mode", getStripeMode())
         .eq("checkout_session_id", sessionId)
         .single();
       if (result.error) throw result.error;
@@ -89,7 +91,7 @@ export async function GET(request: Request) {
     } else if (orderId) {
       const result = await supabase
         .from("store_orders")
-        .select("id, auth_user_id, customer_email, product_id")
+        .select("id, auth_user_id, customer_email, product_id, stripe_mode")
         .eq("id", orderId)
         .single();
       if (result.error) throw result.error;
@@ -99,6 +101,9 @@ export async function GET(request: Request) {
     }
 
     if (!order) throw new Error("Order was not found.");
+    if (order.stripe_mode !== getStripeMode()) {
+      return jsonResponse({ error: "This order belongs to a different Store environment." }, 403);
+    }
 
     const userEmail = user.email!.trim().toLowerCase();
     const ownsOrder =

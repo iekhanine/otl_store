@@ -10,6 +10,7 @@ export type FulfilledOrder = {
   productSlug: string;
   productName: string;
   status: string;
+  stripeMode: "live" | "test";
 };
 
 function idOf(
@@ -25,6 +26,8 @@ export async function fulfillCheckoutSession(
   if (session.payment_status !== "paid") {
     throw new Error("Checkout Session is not paid yet.");
   }
+
+  const stripeMode = session.livemode ? "live" : "test";
 
   const productSlug =
     session.metadata?.product_slug?.trim().toLowerCase() ||
@@ -52,6 +55,7 @@ export async function fulfillCheckoutSession(
       p_amount_total: session.amount_total ?? 0,
       p_currency: session.currency ?? "usd",
       p_auth_user_id: session.metadata?.otl_user_id ?? null,
+      p_stripe_mode: stripeMode,
     },
   );
 
@@ -73,5 +77,6 @@ export async function fulfillCheckoutSession(
     productSlug: String(result.product_slug ?? productSlug),
     productName: String(result.product_name ?? "StreamSafe"),
     status: String(result.status ?? "fulfilled"),
+    stripeMode,
   };
 }

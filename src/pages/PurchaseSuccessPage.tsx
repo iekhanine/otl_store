@@ -132,9 +132,11 @@ export default function PurchaseSuccessPage() {
     <main className="store-shell narrow-page">
       <div className="success-card">
         <CheckCircle2 size={58} className="success-icon" />
-        <h1>StreamSafe is yours.</h1>
+        <h1>{order.environment === "test" ? "Test checkout complete." : "StreamSafe is yours."}</h1>
         <p>
-          Your perpetual license has been created for {order.email}.
+          {order.environment === "test"
+            ? `No money moved. A non-production test license was created for ${order.email}.`
+            : `Your perpetual license has been created for ${order.email}.`}
         </p>
 
         <div className="license-key-box">
@@ -153,7 +155,7 @@ export default function PurchaseSuccessPage() {
           className="button primary full-width"
         >
           <Download size={17} />
-          Download StreamSafe
+          {order.environment === "test" ? "Download StreamSafe (Test)" : "Download StreamSafe"}
         </button>
 
         <div className="success-actions">

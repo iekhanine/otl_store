@@ -7,8 +7,11 @@ export function requireEnv(name: string): string {
 }
 
 export function storePublicUrl(): string {
-  return (
-    process.env.STORE_PUBLIC_URL?.trim() ||
-    "https://store.onetimelabs.net"
-  ).replace(/\/$/, "");
+  const configured = process.env.STORE_PUBLIC_URL?.trim();
+  if (configured) return configured.replace(/\/$/, "");
+
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) return `https://${vercelUrl}`.replace(/\/$/, "");
+
+  return "http://localhost:3000";
 }

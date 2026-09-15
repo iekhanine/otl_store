@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       email: order.customerEmail,
       licenseKey: order.licenseKey,
       status: order.status,
+      environment: order.stripeMode,
       downloadUrl: `/api/download?session_id=${encodeURIComponent(session.id)}`,
     });
   } catch (error) {

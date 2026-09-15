@@ -1,17 +1,19 @@
 import { requireStoreUser, isAuthError } from "../../server/lib/auth.js";
 import { jsonResponse } from "../../server/lib/http.js";
 import { getSupabaseAdmin } from "../../server/lib/supabase.js";
+import { getStripeMode } from "../../server/lib/stripe.js";
 
 export async function GET(request: Request) {
   try {
     const user = await requireStoreUser(request);
     const supabase = getSupabaseAdmin();
     const email = user.email!.trim().toLowerCase();
+    const stripeMode = getStripeMode();
 
-    const byUser = await supabase.from("store_orders").select("id, auth_user_id, customer_email, product_id, license_id, status, created_at").eq("auth_user_id", user.id).order("created_at", { ascending: false });
+    const byUser = await supabase.from("store_orders").select("id, auth_user_id, customer_email, product_id, license_id, status, created_at, stripe_mode").eq("stripe_mode", stripeMode).eq("auth_user_id", user.id).order("created_at", { ascending: false });
     if (byUser.error) throw byUser.error;
 
-    const byEmail = await supabase.from("store_orders").select("id, auth_user_id, customer_email, product_id, license_id, status, created_at").is("auth_user_id", null).eq("customer_email", email).order("created_at", { ascending: false });
+    const byEmail = await supabase.from("store_orders").select("id, auth_user_id, customer_email, product_id, license_id, status, created_at, stripe_mode").eq("stripe_mode", stripeMode).is("auth_user_id", null).eq("customer_email", email).order("created_at", { ascending: false });
     if (byEmail.error) throw byEmail.error;
 
     const combined = [...(byUser.data ?? []), ...(byEmail.data ?? [])];
@@ -40,10 +42,11 @@ export async function GET(request: Request) {
         version: productResult.data.current_version || "0.12.2",
         purchasedAt: order.created_at,
         downloadUrl: `/api/download?order_id=${encodeURIComponent(order.id)}`,
+        environment: stripeMode,
       });
     }
 
-    return jsonResponse({ software });
+    return jsonResponse({ software, environment: stripeMode });
   } catch (error) {
     console.error(error);
     if (isAuthError(error)) return jsonResponse({ error: "Sign in to view your software." }, 401);

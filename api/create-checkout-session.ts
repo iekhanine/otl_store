@@ -1,7 +1,7 @@
 import { requireStoreUser, isAuthError } from "../server/lib/auth.js";
 import { storePublicUrl } from "../server/lib/env.js";
 import { jsonResponse, readJson } from "../server/lib/http.js";
-import { getStripe } from "../server/lib/stripe.js";
+import { getStripe, getStripeMode } from "../server/lib/stripe.js";
 import {
   getStoreSoftwareProduct,
   resolveStripePriceId,
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     const product = await getStoreSoftwareProduct(productSlug, true);
     const stripePriceId = await resolveStripePriceId(product);
     const stripe = getStripe();
+    const stripeMode = getStripeMode();
     const storeUrl = storePublicUrl();
     const productPath =
       product.slug === "streamsafe"
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
         product_slug: product.slug,
         license_type: "perpetual",
         otl_user_id: user.id,
+        stripe_mode: stripeMode,
       },
       success_url: `${storeUrl}/purchase-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${storeUrl}${productPath}`,

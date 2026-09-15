@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { getStripe } from "./stripe.js";
+import { getStripe, getStripeMode } from "./stripe.js";
 import { getSupabaseAdmin } from "./supabase.js";
 
 export type StoreSoftwareProduct = {
@@ -19,6 +19,8 @@ export type StoreSoftwareProduct = {
   store_features: unknown;
   stripe_product_id: string | null;
   stripe_price_id: string | null;
+  stripe_test_product_id: string | null;
+  stripe_test_price_id: string | null;
   download_provider: string | null;
   download_bucket: string | null;
   download_object_key: string | null;
@@ -44,6 +46,8 @@ const STORE_PRODUCT_COLUMNS = [
   "store_features",
   "stripe_product_id",
   "stripe_price_id",
+  "stripe_test_product_id",
+  "stripe_test_price_id",
   "download_provider",
   "download_bucket",
   "download_object_key",
@@ -115,32 +119,37 @@ export async function resolveStripePriceId(
   product: StoreSoftwareProduct,
 ): Promise<string> {
   const stripe = getStripe();
+  const mode = getStripeMode();
+  const configuredPriceId =
+    mode === "test" ? product.stripe_test_price_id : product.stripe_price_id;
+  const configuredProductId =
+    mode === "test" ? product.stripe_test_product_id : product.stripe_product_id;
 
-  if (product.stripe_price_id) {
-    const price = await stripe.prices.retrieve(product.stripe_price_id);
-    if (!price.active) throw new Error("The Stripe price for this product is inactive.");
+  if (configuredPriceId) {
+    const price = await stripe.prices.retrieve(configuredPriceId);
+    if (!price.active) throw new Error(`The Stripe ${mode} price for this product is inactive.`);
 
     const stripeProductId =
       typeof price.product === "string" ? price.product : price.product.id;
 
-    if (product.stripe_product_id && stripeProductId !== product.stripe_product_id) {
-      throw new Error("The configured Stripe price belongs to a different product.");
+    if (configuredProductId && stripeProductId !== configuredProductId) {
+      throw new Error(`The configured Stripe ${mode} price belongs to a different product.`);
     }
 
     return price.id;
   }
 
-  if (!product.stripe_product_id) {
-    throw new Error("This product does not have a Stripe product configured.");
+  if (!configuredProductId) {
+    throw new Error(`This product does not have a Stripe ${mode} product configured.`);
   }
 
-  const stripeProduct = await stripe.products.retrieve(product.stripe_product_id, {
+  const stripeProduct = await stripe.products.retrieve(configuredProductId, {
     expand: ["default_price"],
   });
 
   const defaultPriceId = idOfPrice(stripeProduct.default_price);
   if (!defaultPriceId) {
-    throw new Error("This Stripe product does not have a default price.");
+    throw new Error(`This Stripe ${mode} product does not have a default price.`);
   }
 
   return defaultPriceId;
