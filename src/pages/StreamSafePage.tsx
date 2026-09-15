@@ -9,18 +9,35 @@ import {
   ShieldCheck,
   VolumeX,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StreamSafeGallery from "../components/StreamSafeGallery";
 import { useAuth } from "../context/AuthContext";
 import { streamSafe } from "../data/products";
-import { startStreamSafeCheckout } from "../services/storeApi";
+import { getSoftwareProduct, startStreamSafeCheckout } from "../services/storeApi";
 
 export default function StreamSafePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [product, setProduct] = useState(streamSafe);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [checkoutStarting, setCheckoutStarting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    getSoftwareProduct("streamsafe")
+      .then((loaded) => {
+        if (active) setProduct(loaded);
+      })
+      .catch((error) => {
+        console.warn("Using bundled StreamSafe catalog fallback:", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   async function buyStreamSafe() {
     if (!user) {
@@ -55,11 +72,11 @@ export default function StreamSafePage() {
       <section className="product-hero-grid streamsafe-hero-grid">
         <div className="product-detail-copy">
           <div className="product-title-with-icon">
-            <img src={streamSafe.icon} alt="" />
+            <img src={product.icon} alt="" />
             <div>
               <span className="eyebrow dark">FOR TWITCH STREAMERS</span>
               <h1>StreamSafe</h1>
-              <p>{streamSafe.tagline}</p>
+              <p>{product.tagline}</p>
             </div>
           </div>
 
@@ -93,7 +110,7 @@ export default function StreamSafePage() {
           </div>
 
           <ul className="feature-list streamsafe-feature-list">
-            {streamSafe.features.map(feature => (
+            {product.features.map(feature => (
               <li key={feature}>
                 <Check size={17} />
                 {feature}
@@ -103,7 +120,7 @@ export default function StreamSafePage() {
 
           <div className="purchase-box">
             <div>
-              <strong>{streamSafe.price}</strong>
+              <strong>{product.price}</strong>
               <span>Pay once. No monthly subscription.</span>
             </div>
 

@@ -1,6 +1,7 @@
 import { jsonResponse } from "../server/lib/http.js";
 
 import { GET as getPublicProducts } from "../server/marketplace/public/products.js";
+import { GET as getSoftwareProducts } from "../server/marketplace/public/software-products.js";
 
 import {
   GET as getSellerProfile,
@@ -36,6 +37,7 @@ import { POST as postAdminListingStatus } from "../server/marketplace/admin/list
 
 type MarketplaceRoute =
   | "products"
+  | "software-products"
   | "seller-profile"
   | "seller-application"
   | "seller-listings"
@@ -51,6 +53,7 @@ function getRoute(request: Request): MarketplaceRoute | null {
 
   switch (route) {
     case "products":
+    case "software-products":
     case "seller-profile":
     case "seller-application":
     case "seller-listings":
@@ -83,6 +86,8 @@ export async function GET(request: Request) {
   switch (getRoute(request)) {
     case "products":
       return getPublicProducts(request);
+    case "software-products":
+      return getSoftwareProducts(request);
     case "seller-profile":
       return getSellerProfile(request);
     case "seller-application":

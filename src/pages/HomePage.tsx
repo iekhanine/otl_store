@@ -13,7 +13,8 @@ import {
 import { NavLink } from "react-router-dom";
 import HardwareCard from "../components/marketplace/HardwareCard";
 import ProductCard from "../components/ProductCard";
-import { products } from "../data/products";
+import { products, type StoreProduct } from "../data/products";
+import { getSoftwareProducts } from "../services/storeApi";
 import {
   getMarketplaceListings,
   type MarketplaceListing,
@@ -25,9 +26,16 @@ import {
    ========================================================== */
 
 export default function HomePage() {
+  const [software, setSoftware] = useState<StoreProduct[]>(products);
   const [hardware, setHardware] = useState<MarketplaceListing[]>([]);
 
   useEffect(() => {
+    getSoftwareProducts()
+      .then((loaded) => {
+        if (loaded.length) setSoftware(loaded);
+      })
+      .catch(() => setSoftware(products));
+
     getMarketplaceListings(8)
       .then(setHardware)
       .catch(() => setHardware([]));
@@ -103,7 +111,7 @@ export default function HomePage() {
         </div>
 
         <div className="product-list">
-          {products.map((product) => (
+          {software.map((product) => (
             <ProductCard key={product.slug} product={product} />
           ))}
         </div>

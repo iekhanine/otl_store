@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
+  softwareProductPath,
   softwareTypeLabels,
   type StoreProduct,
 } from "../data/products";
@@ -44,7 +45,7 @@ export default function ProductCard({
 
           <div className="product-actions">
             <NavLink
-              to={`/${product.slug}`}
+              to={softwareProductPath(product)}
               className="button secondary"
             >
               View Product
@@ -52,7 +53,7 @@ export default function ProductCard({
             </NavLink>
 
             <NavLink
-              to={`/${product.slug}`}
+              to={softwareProductPath(product)}
               className="button primary"
             >
               Buy Now

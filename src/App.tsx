@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import SoftwarePage from "./pages/SoftwarePage";
+import SoftwareProductPage from "./pages/SoftwareProductPage";
 import StreamSafePage from "./pages/StreamSafePage";
 import SupportPage from "./pages/SupportPage";
 
@@ -19,6 +20,7 @@ export default function App() {
     <Route path="/hardware" element={<HardwarePage />} />
     <Route path="/hardware/:slug" element={<HardwareProductPage />} />
     <Route path="/software" element={<SoftwarePage />} />
+    <Route path="/software/:slug" element={<SoftwareProductPage />} />
     <Route path="/streamsafe" element={<StreamSafePage />} />
     <Route path="/seller" element={<SellerDashboardPage />} />
     <Route path="/admin" element={<AdminMarketplacePage />} />

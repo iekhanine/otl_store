@@ -44,7 +44,7 @@ export const streamSafe: StoreProduct = {
   tagline: "A panic button for your Twitch stream.",
   description:
     "StreamSafe gives your live stream a short safety delay before it reaches Twitch. If something happens that you do not want viewers to see or hear, hit DUMP and StreamSafe removes that moment from the buffer before it is sent to your audience.",
-  price: import.meta.env.VITE_STREAMSAFE_DISPLAY_PRICE?.trim() || "$49.00",
+  price: "$49.00",
   version: "0.12.2",
   platform: "Windows 10 / 11",
   softwareType: "windows",
@@ -61,3 +61,9 @@ export const streamSafe: StoreProduct = {
 };
 
 export const products = [streamSafe];
+
+export function softwareProductPath(product: Pick<StoreProduct, "slug">): string {
+  return product.slug === "streamsafe"
+    ? "/streamsafe"
+    : `/software/${encodeURIComponent(product.slug)}`;
+}

@@ -5,16 +5,19 @@ import {
   PackageOpen,
 } from "lucide-react";
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
 import { NavLink } from "react-router-dom";
 import {
   products,
+  softwareProductPath,
   softwareTypeLabels,
   type SoftwareType,
   type StoreProduct,
 } from "../data/products";
+import { getSoftwareProducts } from "../services/storeApi";
 
 /* ==========================================================
    SOFTWARE PAGE 001
@@ -36,16 +39,33 @@ const softwareFilters: Array<{
 
 export default function SoftwarePage() {
   const [filter, setFilter] = useState<SoftwareFilter>("all");
+  const [catalog, setCatalog] = useState<StoreProduct[]>(products);
 
-  const featuredProduct = products.find((product) => product.featured) ?? products[0];
+  useEffect(() => {
+    let active = true;
+
+    getSoftwareProducts()
+      .then((loaded) => {
+        if (active && loaded.length) setCatalog(loaded);
+      })
+      .catch((error) => {
+        console.warn("Using bundled software catalog fallback:", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const featuredProduct = catalog.find((product) => product.featured) ?? catalog[0];
 
   const visibleProducts = useMemo(() => {
     if (filter === "all") {
-      return products;
+      return catalog;
     }
 
-    return products.filter((product) => product.softwareType === filter);
-  }, [filter]);
+    return catalog.filter((product) => product.softwareType === filter);
+  }, [catalog, filter]);
 
   return (
     <main className="store-shell software-page">
@@ -150,7 +170,7 @@ function FeaturedSoftware({ product }: { product: StoreProduct }) {
       <div className="software-featured-buy">
         <strong>{product.price}</strong>
         <span>Lifetime license</span>
-        <NavLink to={`/${product.slug}`} className="button primary">
+        <NavLink to={softwareProductPath(product)} className="button primary">
           View product
           <ArrowRight size={15} />
         </NavLink>
@@ -187,7 +207,7 @@ function SoftwareListItem({ product }: { product: StoreProduct }) {
         <span>One-time</span>
       </div>
 
-      <NavLink to={`/${product.slug}`} className="button secondary software-list-action">
+      <NavLink to={softwareProductPath(product)} className="button secondary software-list-action">
         View
         <ArrowRight size={14} />
       </NavLink>
