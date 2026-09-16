@@ -156,7 +156,7 @@ export async function getMySoftware(): Promise<SoftwareEntitlement[]> {
   return body.software ?? [];
 }
 
-export async function downloadSoftware(downloadEndpoint: string | null): Promise<void> {
+export async function generateSoftwareDownloadLink(downloadEndpoint: string | null): Promise<string> {
   if (!downloadEndpoint) throw new Error("Downloads are disabled for this license.");
   const response = await fetch(downloadEndpoint, {
     method: "GET",
@@ -165,10 +165,15 @@ export async function downloadSoftware(downloadEndpoint: string | null): Promise
   });
   const body = await readApiJson<{ url?: string; error?: string }>(
     response,
-    "Unable to prepare your download.",
+    "Unable to prepare your download link.",
   );
   if (!response.ok || !body.url) {
-    throw new Error(body.error || "Unable to prepare your download.");
+    throw new Error(body.error || "Unable to prepare your download link.");
   }
-  window.location.assign(body.url);
+  return body.url;
+}
+
+export async function downloadSoftware(downloadEndpoint: string | null): Promise<void> {
+  const url = await generateSoftwareDownloadLink(downloadEndpoint);
+  window.location.assign(url);
 }
