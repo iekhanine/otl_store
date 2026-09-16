@@ -53,7 +53,7 @@ export default function ProductCard({
             </NavLink>
 
             <NavLink
-              to={softwareProductPath(product)}
+              to={`/checkout/${encodeURIComponent(product.slug)}`}
               className="button primary"
             >
               Buy Now

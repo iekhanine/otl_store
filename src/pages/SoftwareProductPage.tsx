@@ -7,18 +7,15 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import type { StoreProduct } from "../data/products";
-import { getSoftwareProduct, startProductCheckout } from "../services/storeApi";
+import { getSoftwareProduct } from "../services/storeApi";
 
 export default function SoftwareProductPage() {
   const { slug = "" } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [product, setProduct] = useState<StoreProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [checkoutStarting, setCheckoutStarting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -43,26 +40,9 @@ export default function SoftwareProductPage() {
     };
   }, [slug]);
 
-  async function buyProduct() {
+  function buyProduct() {
     if (!product) return;
-
-    if (!user) {
-      navigate(`/login?return=${encodeURIComponent(`/software/${product.slug}`)}`);
-      return;
-    }
-
-    try {
-      setError(null);
-      setCheckoutStarting(true);
-      await startProductCheckout(product.slug);
-    } catch (checkoutError) {
-      setError(
-        checkoutError instanceof Error
-          ? checkoutError.message
-          : "Unable to start checkout.",
-      );
-      setCheckoutStarting(false);
-    }
+    navigate(`/checkout/${encodeURIComponent(product.slug)}`);
   }
 
   if (loading) {
@@ -121,13 +101,8 @@ export default function SoftwareProductPage() {
             <button
               className="button primary purchase-button"
               onClick={buyProduct}
-              disabled={checkoutStarting}
             >
-              {checkoutStarting
-                ? "Opening Checkout..."
-                : user
-                  ? `Buy ${product.name}`
-                  : "Sign in to Buy"}
+              {`Buy ${product.name}`}
             </button>
           </div>
 

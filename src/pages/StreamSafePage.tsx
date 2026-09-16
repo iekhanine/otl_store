@@ -12,16 +12,12 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StreamSafeGallery from "../components/StreamSafeGallery";
-import { useAuth } from "../context/AuthContext";
 import { streamSafe } from "../data/products";
-import { getSoftwareProduct, startStreamSafeCheckout } from "../services/storeApi";
+import { getSoftwareProduct } from "../services/storeApi";
 
 export default function StreamSafePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [product, setProduct] = useState(streamSafe);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [checkoutStarting, setCheckoutStarting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -39,24 +35,8 @@ export default function StreamSafePage() {
     };
   }, []);
 
-  async function buyStreamSafe() {
-    if (!user) {
-      navigate("/login?return=/streamsafe");
-      return;
-    }
-
-    try {
-      setCheckoutError(null);
-      setCheckoutStarting(true);
-      await startStreamSafeCheckout();
-    } catch (error) {
-      setCheckoutError(
-        error instanceof Error
-          ? error.message
-          : "Unable to start checkout.",
-      );
-      setCheckoutStarting(false);
-    }
+  function buyStreamSafe() {
+    navigate(`/checkout/${encodeURIComponent(product.slug)}`);
   }
 
   return (
@@ -127,19 +107,10 @@ export default function StreamSafePage() {
             <button
               className="button primary purchase-button"
               onClick={buyStreamSafe}
-              disabled={checkoutStarting}
             >
-              {checkoutStarting
-                ? "Opening Checkout..."
-                : user ? "Buy StreamSafe" : "Sign in to Buy"}
+              Buy StreamSafe
             </button>
           </div>
-
-          {checkoutError && (
-            <div className="checkout-error" role="alert">
-              {checkoutError}
-            </div>
-          )}
 
           <div className="license-note">
             <InfinityIcon size={18} />

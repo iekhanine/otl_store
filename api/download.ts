@@ -133,7 +133,7 @@ export async function GET(request: Request) {
       ttlSeconds: product.download_token_ttl_seconds || 600,
     });
 
-    const oneTimeUrl = `${storePublicUrl()}/api/download?token=${encodeURIComponent(rawToken)}`;
+    const oneTimeUrl = `${storePublicUrl(request)}/api/download?token=${encodeURIComponent(rawToken)}`;
     return jsonResponse({ url: oneTimeUrl, oneTime: true });
   } catch (error) {
     console.error(error);

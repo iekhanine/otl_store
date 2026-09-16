@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const stripePriceId = await resolveStripePriceId(product);
     const stripe = getStripe();
     const stripeMode = getStripeMode();
-    const storeUrl = storePublicUrl();
+    const storeUrl = storePublicUrl(request);
     const productPath =
       product.slug === "streamsafe"
         ? "/streamsafe"
