@@ -174,15 +174,15 @@ export default function StoreHeader() {
 
       {/* ======================================================
           STORE HEADER 005
-          Equal-width department navigation
+          Left-aligned department navigation + seller CTA
 
-          OneTime Labs software comes first. Hardware is the
-          secondary marketplace department, with RAM beneath it.
+          Store navigation stays grouped on the left while the
+          marketplace seller action is isolated on the far right.
           ====================================================== */}
       <nav className="store-department-nav" aria-label="Store departments">
         <div className="store-shell store-department-inner">
           <NavLink to="/" end>
-            Store
+            Home
           </NavLink>
 
           <NavLink to="/software">Software</NavLink>
@@ -233,10 +233,14 @@ export default function StoreHeader() {
             </div>
           </div>
 
-          <NavLink to={user ? "/seller" : "/login?return=/seller"}>
+          <NavLink to="/support">Support</NavLink>
+
+          <NavLink
+            to={user ? "/seller" : "/login?return=/seller"}
+            className="store-sell-cta"
+          >
             Sell on OneTime Labs
           </NavLink>
-          <NavLink to="/support">Support</NavLink>
         </div>
       </nav>
     </header>
