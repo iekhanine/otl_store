@@ -14,14 +14,17 @@ export type OrderResult = {
 };
 
 export type SoftwareEntitlement = {
-  orderId: string;
+  entitlementId: string;
+  licenseId: string;
   productSlug: string;
   productName: string;
   licenseKey: string;
   status: string;
   version: string;
   purchasedAt: string;
-  downloadUrl: string;
+  source: string;
+  canDownload: boolean;
+  downloadUrl: string | null;
   environment?: "live" | "test";
 };
 
@@ -153,7 +156,8 @@ export async function getMySoftware(): Promise<SoftwareEntitlement[]> {
   return body.software ?? [];
 }
 
-export async function downloadSoftware(downloadEndpoint: string): Promise<void> {
+export async function downloadSoftware(downloadEndpoint: string | null): Promise<void> {
+  if (!downloadEndpoint) throw new Error("Downloads are disabled for this license.");
   const response = await fetch(downloadEndpoint, {
     method: "GET",
     cache: "no-store",

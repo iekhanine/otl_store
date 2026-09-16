@@ -68,6 +68,35 @@ export async function fulfillCheckoutSession(
     throw new Error("Store fulfillment did not return an order.");
   }
 
+  const licenseId = String(result.license_id ?? "");
+  const productIdResult = await supabase
+    .from("products")
+    .select("id")
+    .eq("slug", productSlug)
+    .maybeSingle();
+
+  if (productIdResult.error) {
+    throw new Error(`Unable to resolve product entitlement: ${productIdResult.error.message}`);
+  }
+
+  const authUserId = session.metadata?.otl_user_id ?? null;
+  if (authUserId && licenseId && productIdResult.data?.id) {
+    const entitlementResult = await supabase
+      .from("software_entitlements")
+      .upsert({
+        auth_user_id: authUserId,
+        product_id: productIdResult.data.id,
+        license_id: licenseId,
+        source: "purchase",
+        download_enabled: true,
+        notes: "Perpetual entitlement created from Stripe purchase.",
+      }, { onConflict: "license_id", ignoreDuplicates: true });
+
+    if (entitlementResult.error) {
+      throw new Error(`Unable to create software entitlement: ${entitlementResult.error.message}`);
+    }
+  }
+
   return {
     orderId: String(result.order_id ?? ""),
     customerId: String(result.customer_id ?? ""),

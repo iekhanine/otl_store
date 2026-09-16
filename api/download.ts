@@ -1,10 +1,8 @@
 import { isAuthError, requireStoreUser } from "../server/lib/auth.js";
 import { createPrivateSoftwareUrl } from "../server/lib/downloadStorage.js";
-import { issueDownloadToken, redeemDownloadToken } from "../server/lib/downloadTokens.js";
+import { issueEntitlementDownloadToken, redeemDownloadToken } from "../server/lib/downloadTokens.js";
 import { storePublicUrl } from "../server/lib/env.js";
-import { fulfillCheckoutSession } from "../server/lib/fulfillment.js";
 import { jsonResponse } from "../server/lib/http.js";
-import { getStripe, getStripeMode } from "../server/lib/stripe.js";
 import { getStoreSoftwareProductById } from "../server/lib/storeProducts.js";
 import { getSupabaseAdmin } from "../server/lib/supabase.js";
 
@@ -39,98 +37,63 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const token = url.searchParams.get("token")?.trim();
 
-  // The one-time token is intentionally the only credential used by the
-  // browser redirect. It is single-use and expires quickly.
+  // Possession of a valid temporary token is sufficient for redemption.
   if (token) {
     return redeemTokenAndRedirect(token);
   }
 
   try {
     const user = await requireStoreUser(request);
-    const sessionId = url.searchParams.get("session_id")?.trim();
-    const orderId = url.searchParams.get("order_id")?.trim();
+    const licenseId = url.searchParams.get("license_id")?.trim();
+
+    if (!licenseId) {
+      return jsonResponse({ error: "license_id is required." }, 400);
+    }
+
     const supabase = getSupabaseAdmin();
 
-    let order: {
-      id: string;
-      auth_user_id: string | null;
-      customer_email: string;
-      product_id: string;
-      stripe_mode: string;
-    } | null = null;
+    const entitlementResult = await supabase
+      .from("software_entitlements")
+      .select("id, auth_user_id, product_id, license_id, download_enabled, revoked_at")
+      .eq("license_id", licenseId)
+      .eq("auth_user_id", user.id)
+      .maybeSingle();
 
-    if (sessionId) {
-      const session = await getStripe().checkout.sessions.retrieve(sessionId);
-      if (session.payment_status !== "paid") {
-        return jsonResponse({ error: "This order is not paid." }, 403);
-      }
+    if (entitlementResult.error) throw entitlementResult.error;
+    const entitlement = entitlementResult.data;
 
-      const checkoutUserId = session.metadata?.otl_user_id ?? null;
-      const checkoutEmail =
-        session.customer_details?.email?.trim().toLowerCase() ??
-        session.customer_email?.trim().toLowerCase() ??
-        null;
-      const userEmail = user.email?.trim().toLowerCase() ?? null;
-
-      if (checkoutUserId && checkoutUserId !== user.id) {
-        return jsonResponse({ error: "This purchase belongs to another account." }, 403);
-      }
-      if (!checkoutUserId && checkoutEmail && checkoutEmail !== userEmail) {
-        return jsonResponse({ error: "This purchase belongs to another account." }, 403);
-      }
-
-      await fulfillCheckoutSession(session);
-      const result = await supabase
-        .from("store_orders")
-        .select("id, auth_user_id, customer_email, product_id, stripe_mode")
-        .eq("stripe_mode", getStripeMode())
-        .eq("checkout_session_id", sessionId)
-        .single();
-      if (result.error) throw result.error;
-      order = result.data;
-    } else if (orderId) {
-      const result = await supabase
-        .from("store_orders")
-        .select("id, auth_user_id, customer_email, product_id, stripe_mode")
-        .eq("id", orderId)
-        .single();
-      if (result.error) throw result.error;
-      order = result.data;
-    } else {
-      return jsonResponse({ error: "order_id or session_id is required." }, 400);
-    }
-
-    if (!order) throw new Error("Order was not found.");
-    if (order.stripe_mode !== getStripeMode()) {
-      return jsonResponse({ error: "This order belongs to a different Store environment." }, 403);
-    }
-
-    const userEmail = user.email!.trim().toLowerCase();
-    const ownsOrder =
-      order.auth_user_id === user.id ||
-      String(order.customer_email).toLowerCase() === userEmail;
-
-    if (!ownsOrder) {
+    if (!entitlement) {
       return jsonResponse({ error: "You do not own this software license." }, 403);
     }
 
-    if (!order.auth_user_id) {
-      await supabase
-        .from("store_orders")
-        .update({ auth_user_id: user.id })
-        .eq("id", order.id);
+    if (!entitlement.download_enabled || entitlement.revoked_at) {
+      return jsonResponse({ error: "Downloads are disabled for this license." }, 403);
     }
 
-    const product = await getStoreSoftwareProductById(order.product_id);
+    const licenseResult = await supabase
+      .from("licenses")
+      .select("status")
+      .eq("id", entitlement.license_id)
+      .maybeSingle();
+
+    if (licenseResult.error) throw licenseResult.error;
+    if (!licenseResult.data || licenseResult.data.status !== "active") {
+      return jsonResponse({ error: "This software license is not active." }, 403);
+    }
+
+    const product = await getStoreSoftwareProductById(entitlement.product_id);
     if (!product.download_provider || !product.download_bucket || !product.download_object_key) {
       return jsonResponse({ error: "This product does not have a download artifact configured." }, 503);
     }
 
-    const rawToken = await issueDownloadToken({
-      orderId: order.id,
+    const rawToken = await issueEntitlementDownloadToken({
       productId: product.id,
-      authUserId: user.id,
+      entitlementId: entitlement.id,
+      licenseId: entitlement.license_id,
+      recipientEmail: user.email ?? null,
       ttlSeconds: product.download_token_ttl_seconds || 600,
+      maxUses: 1,
+      source: "account",
     });
 
     const oneTimeUrl = `${storePublicUrl(request)}/api/download?token=${encodeURIComponent(rawToken)}`;
