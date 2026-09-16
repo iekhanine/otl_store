@@ -9,6 +9,7 @@ import HardwareProductPage from "./pages/HardwareProductPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import SoftwarePage from "./pages/SoftwarePage";
 import SoftwareProductPage from "./pages/SoftwareProductPage";
@@ -30,5 +31,6 @@ export default function App() {
     <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
     <Route path="/account" element={<AccountPage />} />
     <Route path="/support" element={<SupportPage />} />
+    <Route path="/privacy" element={<PrivacyPage />} />
   </Routes><StoreFooter /></div>;
 }

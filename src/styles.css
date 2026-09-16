@@ -5603,3 +5603,165 @@ main.store-shell,
     justify-content: center;
   }
 }
+
+/* ==========================================================
+   PRIVACY 001
+   Store privacy policy
+   ========================================================== */
+
+.privacy-page {
+  flex: 1;
+  padding: 46px 0 70px;
+}
+
+.privacy-hero,
+.privacy-summary-card,
+.privacy-content {
+  width: min(860px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.privacy-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.privacy-hero-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cfe1f5;
+  border-radius: 9px;
+  color: #126edb;
+  background: #eef6ff;
+}
+
+.privacy-hero h1 {
+  margin: 4px 0 4px;
+  font-size: 31px;
+}
+
+.privacy-hero p {
+  max-width: 700px;
+  margin: 0;
+  color: var(--text-500);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.privacy-hero small {
+  display: block;
+  margin-top: 7px;
+  color: #8390a0;
+  font-size: 9.5px;
+}
+
+.privacy-summary-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 15px 16px;
+  border: 1px solid #cfe1f5;
+  border-radius: 9px;
+  color: #33465d;
+  background: #f5f9ff;
+}
+
+.privacy-summary-card > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #126edb;
+}
+
+.privacy-summary-card strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #17283d;
+  font-size: 11.5px;
+}
+
+.privacy-summary-card p {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.65;
+}
+
+.privacy-content {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(33, 55, 78, 0.05);
+}
+
+.privacy-content section {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.privacy-content section:last-child {
+  border-bottom: 0;
+}
+
+.privacy-content h2 {
+  margin: 0 0 10px;
+  color: #18293d;
+  font-size: 15px;
+}
+
+.privacy-content h3 {
+  margin: 16px 0 5px;
+  color: #33465d;
+  font-size: 11.5px;
+}
+
+.privacy-content p,
+.privacy-content li {
+  color: #617084;
+  font-size: 10.5px;
+  line-height: 1.72;
+}
+
+.privacy-content p {
+  margin: 0 0 10px;
+}
+
+.privacy-content p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-content ul {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 10px;
+  padding-left: 20px;
+}
+
+.privacy-content a {
+  color: #126edb;
+  font-weight: 700;
+}
+
+.privacy-content a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 680px) {
+  .privacy-page {
+    padding: 30px 0 48px;
+  }
+
+  .privacy-hero h1 {
+    font-size: 26px;
+  }
+
+  .privacy-content section {
+    padding: 18px 16px;
+  }
+}
