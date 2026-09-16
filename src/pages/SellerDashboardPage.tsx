@@ -333,7 +333,7 @@ export default function SellerDashboardPage() {
   }
 
   async function handleStripe() {
-    if (seller.uses_platform_stripe) return;
+    if (!seller || seller.uses_platform_stripe) return;
 
     try {
       setStripeBusy(true);
