@@ -174,10 +174,7 @@ export default function StoreHeader() {
 
       {/* ======================================================
           STORE HEADER 005
-          Left-aligned department navigation + seller CTA
-
-          Store navigation stays grouped on the left while the
-          marketplace seller action is isolated on the far right.
+          Left navigation + isolated seller CTA
           ====================================================== */}
       <nav className="store-department-nav" aria-label="Store departments">
         <div className="store-shell store-department-inner">
@@ -224,10 +221,7 @@ export default function StoreHeader() {
               >
                 RAM
               </NavLink>
-              <NavLink
-                to="/hardware?q=storage"
-                role="menuitem"
-              >
+              <NavLink to="/hardware?q=storage" role="menuitem">
                 Storage
               </NavLink>
             </div>

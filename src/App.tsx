@@ -3,7 +3,6 @@ import StoreFooter from "./components/StoreFooter";
 import StoreHeader from "./components/StoreHeader";
 import AccountPage from "./pages/AccountPage";
 import CheckoutStartPage from "./pages/CheckoutStartPage";
-import AdminMarketplacePage from "./pages/AdminMarketplacePage";
 import HardwarePage from "./pages/HardwarePage";
 import HardwareProductPage from "./pages/HardwareProductPage";
 import HomePage from "./pages/HomePage";
@@ -25,7 +24,6 @@ export default function App() {
     <Route path="/software/:slug" element={<SoftwareProductPage />} />
     <Route path="/streamsafe" element={<StreamSafePage />} />
     <Route path="/seller" element={<SellerDashboardPage />} />
-    <Route path="/admin" element={<AdminMarketplacePage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/checkout/:slug" element={<CheckoutStartPage />} />
     <Route path="/purchase-success" element={<PurchaseSuccessPage />} />
