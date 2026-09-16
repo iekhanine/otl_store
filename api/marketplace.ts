@@ -21,6 +21,7 @@ import {
   GET as getSellerSales,
   PATCH as patchSellerSales,
 } from "../server/marketplace/seller/sales.js";
+import { POST as postSellerStripe } from "../server/marketplace/seller/stripe.js";
 
 import { GET as getAdminMarketplace } from "../server/marketplace/admin/marketplace.js";
 import { POST as postAdminSellerStatus } from "../server/marketplace/admin/seller-status.js";
@@ -44,6 +45,7 @@ type MarketplaceRoute =
   | "seller-listing"
   | "seller-cash-sale"
   | "seller-sales"
+  | "seller-stripe"
   | "admin-marketplace"
   | "admin-seller-status"
   | "admin-listing-status";
@@ -60,6 +62,7 @@ function getRoute(request: Request): MarketplaceRoute | null {
     case "seller-listing":
     case "seller-cash-sale":
     case "seller-sales":
+    case "seller-stripe":
     case "admin-marketplace":
     case "admin-seller-status":
     case "admin-listing-status":
@@ -120,6 +123,8 @@ export async function POST(request: Request) {
       return postSellerListings(request);
     case "seller-cash-sale":
       return postSellerCashSale(request);
+    case "seller-stripe":
+      return postSellerStripe(request);
     case "admin-seller-status":
       return postAdminSellerStatus(request);
     case "admin-listing-status":

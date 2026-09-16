@@ -10,6 +10,7 @@ export type SellerProfile = {
   display_name: string;
   slug: string;
   status: SellerStatus;
+  uses_platform_stripe: boolean;
   stripe_account_id: string | null;
   stripe_onboarding_complete: boolean;
   stripe_charges_enabled: boolean;
@@ -318,6 +319,25 @@ export async function uploadListingImages(files: File[], userId: string): Promis
   }
 
   return urls;
+}
+
+
+export async function openSellerStripe(action: "connect" | "manage" = "connect"): Promise<{
+  connected: boolean;
+  platformAccount: boolean;
+  url?: string;
+  message?: string;
+}> {
+  const response = await fetch("/api/marketplace?route=seller-stripe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders()),
+    },
+    body: JSON.stringify({ action }),
+  });
+
+  return apiJson(response, "Unable to connect Stripe.");
 }
 
 export type AdminMarketplaceData = {

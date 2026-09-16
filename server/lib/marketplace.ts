@@ -9,6 +9,7 @@ export type SellerRecord = {
   display_name: string;
   slug: string;
   status: "pending" | "approved" | "suspended";
+  uses_platform_stripe: boolean;
   stripe_account_id: string | null;
   stripe_onboarding_complete: boolean;
   stripe_charges_enabled: boolean;

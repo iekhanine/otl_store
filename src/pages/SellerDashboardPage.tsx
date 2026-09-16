@@ -32,6 +32,7 @@ import {
   getSellerListings,
   getSellerProfile,
   getSellerSales,
+  openSellerStripe,
   submitSellerApplication,
   updateListing,
   type MarketplaceListing,
@@ -111,6 +112,7 @@ export default function SellerDashboardPage() {
   const [editListing, setEditListing] = useState<MarketplaceListing | null>(null);
   const [showListingEditor, setShowListingEditor] = useState(false);
   const [showArchives, setShowArchives] = useState(false);
+  const [stripeBusy, setStripeBusy] = useState(false);
 
   /* ========================================================
      HEADER 003
@@ -330,6 +332,34 @@ export default function SellerDashboardPage() {
     }
   }
 
+  async function handleStripe() {
+    if (seller.uses_platform_stripe) return;
+
+    try {
+      setStripeBusy(true);
+      setError(null);
+
+      const result = await openSellerStripe(
+        seller.stripe_onboarding_complete ? "manage" : "connect",
+      );
+
+      if (result.url) {
+        window.location.assign(result.url);
+        return;
+      }
+
+      await load(false);
+    } catch (stripeError) {
+      setError(
+        stripeError instanceof Error
+          ? stripeError.message
+          : "Unable to connect Stripe.",
+      );
+    } finally {
+      setStripeBusy(false);
+    }
+  }
+
   return (
     <main className="store-shell seller-page">
       <div className="seller-page-heading">
@@ -392,9 +422,11 @@ export default function SellerDashboardPage() {
           <WalletCards size={20} />
           <div>
             <strong>
-              {seller.stripe_onboarding_complete
-                ? "Connected"
-                : "Not connected"}
+              {seller.uses_platform_stripe
+                ? "OTL Stripe"
+                : seller.stripe_onboarding_complete
+                  ? "Connected"
+                  : "Not connected"}
             </strong>
             <span>Stripe payouts</span>
           </div>
@@ -407,16 +439,26 @@ export default function SellerDashboardPage() {
           <div>
             <strong>Seller payments</strong>
             <span>
-              {seller.stripe_onboarding_complete
-                ? "Stripe seller account connected."
-                : "Stripe Connect is the next setup step. Your seller record is ready for it."}
+              {seller.uses_platform_stripe
+                ? "Payments settle directly to the OneTime Labs Stripe account."
+                : seller.stripe_onboarding_complete
+                  ? "Stripe seller account connected."
+                  : "Connect Stripe to receive marketplace payouts."}
             </span>
           </div>
         </div>
-        <button className="button secondary" disabled>
-          {seller.stripe_onboarding_complete
-            ? "Manage Stripe"
-            : "Connect Stripe next"}
+        <button
+          className="button secondary"
+          disabled={seller.uses_platform_stripe || stripeBusy || seller.status !== "approved"}
+          onClick={() => void handleStripe()}
+        >
+          {seller.uses_platform_stripe
+            ? "OneTime Labs Stripe"
+            : stripeBusy
+              ? "Opening Stripe..."
+              : seller.stripe_onboarding_complete
+                ? "Manage Stripe"
+                : "Connect Stripe"}
         </button>
       </section>
 
