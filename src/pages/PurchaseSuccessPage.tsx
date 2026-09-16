@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -27,6 +28,10 @@ export default function PurchaseSuccessPage() {
 
   const [order, setOrder] = useState<OrderResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadStarting, setDownloadStarting] = useState(false);
+  const [downloadStarted, setDownloadStarted] = useState(false);
+  const autoDownloadStarted = useRef(false);
 
   useEffect(() => {
     if (!user) return;
@@ -77,6 +82,23 @@ export default function PurchaseSuccessPage() {
     };
   }, [sessionId, user]);
 
+  useEffect(() => {
+    if (
+      !order?.ready ||
+      !order.licenseKey ||
+      !order.downloadUrl ||
+      autoDownloadStarted.current
+    ) {
+      return;
+    }
+
+    // The success page has rendered the license key at this point. Start the
+    // protected one-time download immediately, but keep the manual button on
+    // screen in case the browser blocks or interrupts the automatic download.
+    autoDownloadStarted.current = true;
+    void download();
+  }, [order]);
+
   async function copyKey() {
     if (order?.licenseKey) {
       await navigator.clipboard.writeText(order.licenseKey);
@@ -84,22 +106,42 @@ export default function PurchaseSuccessPage() {
   }
 
   async function download() {
-    if (!order?.downloadUrl) return;
+    if (!order?.downloadUrl || downloadStarting) return;
+
     try {
-      setError(null);
+      setDownloadError(null);
+      setDownloadStarting(true);
       await downloadSoftware(order.downloadUrl);
-    } catch (downloadError) {
-      setError(downloadError instanceof Error ? downloadError.message : "Unable to download StreamSafe.");
+      setDownloadStarted(true);
+    } catch (downloadErrorValue) {
+      setDownloadError(
+        downloadErrorValue instanceof Error
+          ? downloadErrorValue.message
+          : "Unable to download StreamSafe.",
+      );
+    } finally {
+      setDownloadStarting(false);
     }
   }
 
-
   if (authLoading) {
-    return <main className="store-shell narrow-page"><div className="success-card"><LoaderCircle size={48} className="success-icon spin" /><h1>Loading your account...</h1></div></main>;
+    return (
+      <main className="store-shell narrow-page">
+        <div className="success-card">
+          <LoaderCircle size={48} className="success-icon spin" />
+          <h1>Loading your account...</h1>
+        </div>
+      </main>
+    );
   }
 
   if (!user) {
-    return <Navigate to={`/login?return=${encodeURIComponent(`/purchase-success?session_id=${sessionId}`)}`} replace />;
+    return (
+      <Navigate
+        to={`/login?return=${encodeURIComponent(`/purchase-success?session_id=${sessionId}`)}`}
+        replace
+      />
+    );
   }
 
   if (error) {
@@ -132,7 +174,11 @@ export default function PurchaseSuccessPage() {
     <main className="store-shell narrow-page">
       <div className="success-card">
         <CheckCircle2 size={58} className="success-icon" />
-        <h1>{order.environment === "test" ? "Test checkout complete." : "StreamSafe is yours."}</h1>
+        <h1>
+          {order.environment === "test"
+            ? "Test checkout complete."
+            : "StreamSafe is yours."}
+        </h1>
         <p>
           {order.environment === "test"
             ? `No money moved. A non-production test license was created for ${order.email}.`
@@ -153,10 +199,23 @@ export default function PurchaseSuccessPage() {
           type="button"
           onClick={() => void download()}
           className="button primary full-width"
+          disabled={downloadStarting}
         >
-          <Download size={17} />
-          {order.environment === "test" ? "Download StreamSafe (Test)" : "Download StreamSafe"}
+          {downloadStarting ? (
+            <LoaderCircle size={17} className="spin" />
+          ) : (
+            <Download size={17} />
+          )}
+          DOWNLOAD NOW
         </button>
+
+        <div className="prototype-note">
+          {downloadError
+            ? `Automatic download could not start: ${downloadError} Click DOWNLOAD NOW to try again.`
+            : downloadStarted
+              ? "Your download has started. If it does not appear, click DOWNLOAD NOW."
+              : "Your download will start automatically. If your browser blocks it, click DOWNLOAD NOW."}
+        </div>
 
         <div className="success-actions">
           <NavLink to="/account">My Software</NavLink>
