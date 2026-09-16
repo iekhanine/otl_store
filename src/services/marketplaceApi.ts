@@ -322,12 +322,20 @@ export async function uploadListingImages(files: File[], userId: string): Promis
 }
 
 
-export async function openSellerStripe(action: "connect" | "manage" = "connect"): Promise<{
+export type SellerStripeResult = {
   connected: boolean;
+  onboardingComplete?: boolean;
+  chargesEnabled?: boolean;
+  payoutsEnabled?: boolean;
   platformAccount: boolean;
+  accountId?: string;
   url?: string;
   message?: string;
-}> {
+};
+
+export async function openSellerStripe(
+  action: "connect" | "manage" | "status" = "connect",
+): Promise<SellerStripeResult> {
   const response = await fetch("/api/marketplace?route=seller-stripe", {
     method: "POST",
     headers: {
@@ -337,7 +345,10 @@ export async function openSellerStripe(action: "connect" | "manage" = "connect")
     body: JSON.stringify({ action }),
   });
 
-  return apiJson(response, "Unable to connect Stripe.");
+  return apiJson<SellerStripeResult>(
+    response,
+    "Unable to open Stripe seller setup.",
+  );
 }
 
 export type AdminMarketplaceData = {

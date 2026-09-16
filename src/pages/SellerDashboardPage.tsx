@@ -204,6 +204,49 @@ export default function SellerDashboardPage() {
     });
   }, [userId, loading, seller, application, listings, sales, archivedSales]);
 
+  /* ========================================================
+     STRIPE RETURN / REFRESH
+     Account Links expire and are single-use. Stripe returns to
+     Seller Center, where we refresh the connected-account state.
+     ======================================================== */
+
+  useEffect(() => {
+    if (!seller || seller.uses_platform_stripe || seller.status !== "approved") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const stripeReturn = params.get("stripe");
+    if (stripeReturn !== "return" && stripeReturn !== "refresh") return;
+
+    // Clear the query first so state refreshes cannot retrigger the flow.
+    window.history.replaceState({}, "", "/seller");
+
+    void (async () => {
+      try {
+        setStripeBusy(true);
+        setError(null);
+
+        if (stripeReturn === "refresh") {
+          const result = await openSellerStripe("connect");
+          if (result.url) {
+            window.location.assign(result.url);
+            return;
+          }
+        } else {
+          await openSellerStripe("status");
+          await load(false);
+        }
+      } catch (stripeError) {
+        setError(
+          stripeError instanceof Error
+            ? stripeError.message
+            : "Unable to refresh Stripe seller status.",
+        );
+      } finally {
+        setStripeBusy(false);
+      }
+    })();
+  }, [seller, load]);
+
   const activeListings = useMemo(
     () => listings.filter(listing => listing.status !== "archived"),
     [listings],

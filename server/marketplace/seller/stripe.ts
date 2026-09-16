@@ -8,10 +8,12 @@ import { getSupabaseAdmin } from "../../lib/supabase.js";
    SELLER STRIPE 001
    Stripe Connect onboarding / management
 
-   OneTime Labs owner sellers use the platform Stripe account
-   directly and never receive a Stripe connected-account ID.
-   Every other approved seller gets an Express connected account.
+   Owner/admin seller identities use the OneTime Labs platform
+   Stripe account directly. Every other approved seller receives
+   their own connected account and uses Stripe-hosted onboarding.
    ========================================================== */
+
+type StripeAction = "connect" | "manage" | "status";
 
 export async function POST(request: Request) {
   try {
@@ -27,22 +29,42 @@ export async function POST(request: Request) {
     if (seller.uses_platform_stripe) {
       return jsonResponse({
         connected: true,
+        onboardingComplete: true,
+        chargesEnabled: true,
+        payoutsEnabled: true,
         platformAccount: true,
         message: "This seller uses the OneTime Labs Stripe account.",
       });
     }
 
     const body = await request.json().catch(() => ({})) as { action?: unknown };
-    const action = body.action === "manage" ? "manage" : "connect";
+    const action: StripeAction =
+      body.action === "manage"
+        ? "manage"
+        : body.action === "status"
+          ? "status"
+          : "connect";
+
     const stripe = getStripe();
     let accountId = seller.stripe_account_id;
 
     if (!accountId) {
+      /*
+       * Marketplace recipient account:
+       * - OneTime Labs owns fees and payment losses.
+       * - Seller gets the Express Dashboard.
+       * - Seller only needs Transfers because checkout uses
+       *   destination charges on the OneTime Labs platform account.
+       * - Do NOT request card_payments on the connected account.
+       */
       const account = await stripe.accounts.create({
-        type: "express",
         email: seller.email,
+        controller: {
+          fees: { payer: "application" },
+          losses: { payments: "application" },
+          stripe_dashboard: { type: "express" },
+        },
         capabilities: {
-          card_payments: { requested: true },
           transfers: { requested: true },
         },
         metadata: {
@@ -64,7 +86,6 @@ export async function POST(request: Request) {
     }
 
     const account = await stripe.accounts.retrieve(accountId);
-
     const onboardingComplete = Boolean(account.details_submitted);
     const chargesEnabled = Boolean(account.charges_enabled);
     const payoutsEnabled = Boolean(account.payouts_enabled);
@@ -82,15 +103,34 @@ export async function POST(request: Request) {
       throw new Error(`Unable to update Stripe seller status: ${statusError.message}`);
     }
 
+    if (action === "status") {
+      return jsonResponse({
+        connected: onboardingComplete,
+        onboardingComplete,
+        chargesEnabled,
+        payoutsEnabled,
+        platformAccount: false,
+        accountId,
+      });
+    }
+
     if (action === "manage" && onboardingComplete) {
       const loginLink = await stripe.accounts.createLoginLink(accountId);
       return jsonResponse({
         connected: true,
+        onboardingComplete,
+        chargesEnabled,
+        payoutsEnabled,
         platformAccount: false,
+        accountId,
         url: loginLink.url,
       });
     }
 
+    /*
+     * Account Links are deliberately created on demand. They expire
+     * and are single-use, so never store or hard-code an onboarding URL.
+     */
     const storeUrl = storePublicUrl(request);
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
@@ -104,7 +144,11 @@ export async function POST(request: Request) {
 
     return jsonResponse({
       connected: onboardingComplete,
+      onboardingComplete,
+      chargesEnabled,
+      payoutsEnabled,
       platformAccount: false,
+      accountId,
       url: accountLink.url,
     });
   } catch (error) {
